@@ -111,65 +111,77 @@ export const EditorialTestimonials: React.FC<EditorialTestimonialsProps> = ({
     if (cards.length === 0) return;
 
     let ctx = gsap.context(() => {
-      // Create ScrollTrigger linked timeline
+      const isMobile = window.innerWidth < 768;
+      const xOffset = isMobile ? '35vw' : '15vw';
+      const targetOpacity = isMobile ? 0 : 0.25;
+
+      // Create ScrollTrigger linked timeline on the scrollContainer (parent section)
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: scrollContainer,
           start: 'top top',
-          end: 'bottom bottom',
-          scrub: 1.2, // Smooth damping for a luxury floating feeling
+          end: '+=250%', // Pins for 250% of viewport scroll distance
+          pin: true, // Native GSAP pinning handles viewport locking perfectly
+          scrub: 1, // Directly linked to the scrollbar for perfect synchronicity
           invalidateOnRefresh: true,
         }
       });
 
-      // Subtle scaling and parallax tilt for side headings on scroll
-      tl.fromTo('.testimonial-heading', 
-        { opacity: 0.9, y: 0 },
-        { opacity: 1, y: -20, duration: 1 },
+      // Left heading: slides left and fades slightly on scroll
+      tl.fromTo('.testimonial-heading-left',
+        { x: '0px', opacity: 1 },
+        { x: `-${xOffset}`, opacity: targetOpacity, ease: 'power1.inOut' },
         0
       );
 
-      // Define responsive coordinates & customized speeds for each card
+      // Right heading: slides right and fades slightly on scroll
+      tl.fromTo('.testimonial-heading-right',
+        { x: '0px', opacity: 1 },
+        { x: `${xOffset}`, opacity: targetOpacity, ease: 'power1.inOut' },
+        0
+      );
+
+      // Define responsive coordinates & customized speeds for each card to drift on scroll
       // Card 0: Drifts up and slightly right
       tl.fromTo(cards[0],
-        { y: '105vh', x: '-20px', rotation: -4 },
-        { y: '-115vh', x: '20px', rotation: 3, ease: 'none' },
-        0
+        { y: '110vh', x: '-20px', rotation: -5, opacity: 0.9 },
+        { y: '-120vh', x: '20px', rotation: 2, opacity: 1, ease: 'none' },
+        0.3
       );
 
       // Card 1: Drifts up and left (different speed)
       tl.fromTo(cards[1],
-        { y: '135vh', x: '35px', rotation: 3 },
-        { y: '-105vh', x: '-25px', rotation: -2, ease: 'none' },
-        0.05
+        { y: '110vh', x: '35px', rotation: 4, opacity: 0.9 },
+        { y: '-120vh', x: '-25px', rotation: -3, opacity: 1, ease: 'none' },
+        0.45
       );
 
       // Card 2: Drifts up and right (slower speed)
       tl.fromTo(cards[2],
-        { y: '165vh', x: '-40px', rotation: -3 },
-        { y: '-125vh', x: '15px', rotation: 1, ease: 'none' },
-        0.1
+        { y: '110vh', x: '-40px', rotation: -2, opacity: 0.9 },
+        { y: '-120vh', x: '15px', rotation: 3, opacity: 1, ease: 'none' },
+        0.6
       );
 
       // Card 3: Drifts up and left (faster speed)
       tl.fromTo(cards[3],
-        { y: '195vh', x: '30px', rotation: 2 },
-        { y: '-95vh', x: '-30px', rotation: -3, ease: 'none' },
-        0.15
+        { y: '110vh', x: '25px', rotation: 5, opacity: 0.9 },
+        { y: '-120vh', x: '-35px', rotation: -2, opacity: 1, ease: 'none' },
+        0.75
       );
 
       // Card 4: Drifts up and right
       tl.fromTo(cards[4],
-        { y: '225vh', x: '-15px', rotation: -2 },
-        { y: '-135vh', x: '35px', rotation: 3, ease: 'none' },
-        0.2
+        { y: '110vh', x: '-15px', rotation: -4, opacity: 0.9 },
+        { y: '-120vh', x: '25px', rotation: 4, opacity: 1, ease: 'none' },
+        0.9
       );
 
       // Card 5: Drifts up and left (final card)
       tl.fromTo(cards[5],
-        { y: '255vh', x: '25px', rotation: 4 },
-        { y: '-110vh', x: '-15px', rotation: -1, ease: 'none' },
-        0.25
+        { y: '110vh', x: '45px', rotation: 3, opacity: 0.9 },
+        { y: '-120vh', x: '-25px', rotation: -5, opacity: 1, ease: 'none' },
+        1.05
       );
 
     }, scrollContainer);
@@ -194,13 +206,14 @@ export const EditorialTestimonials: React.FC<EditorialTestimonialsProps> = ({
     <section 
       ref={scrollContainerRef}
       id="editorial-reviews-section"
-      className="relative w-full h-[300vh] select-none"
+      className="relative w-full h-screen overflow-hidden select-none"
       style={{ backgroundColor: settings.colorBg || '#FAF5F0' }}
     >
-      {/* Sticky viewport container - handles pinning natively */}
+      {/* Inner viewport container - GSAP pin handles the locking beautifully */}
       <div 
         ref={stickyContainerRef}
-        className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center"
+        className="relative w-full h-full overflow-hidden flex items-center justify-center"
+        style={{ backgroundColor: settings.colorBg || '#FAF5F0' }}
       >
         
         {/* Fixed Side Headings Layer */}
@@ -210,7 +223,7 @@ export const EditorialTestimonials: React.FC<EditorialTestimonialsProps> = ({
             {/* Left Title */}
             <div 
               ref={leftHeadingRef}
-              className="testimonial-heading absolute top-[8%] md:top-1/2 md:-translate-y-1/2 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[8vw] text-center md:text-left font-heading font-semibold text-stone-900 tracking-tight text-2xl sm:text-3xl md:text-[40px] lg:text-[48px] xl:text-[54px] w-[90%] md:w-auto max-w-[90vw] md:max-w-[30vw]"
+              className="testimonial-heading testimonial-heading-left absolute top-[8%] md:top-1/2 md:-translate-y-1/2 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-[16vw] text-center md:text-left font-heading font-semibold text-stone-900 tracking-tight text-base sm:text-lg md:text-xl lg:text-2xl xl:text-[28px] w-[90%] md:w-auto max-w-[90vw] md:max-w-[30vw]"
               style={{
                 lineHeight: '1.05',
                 willChange: 'transform, opacity',
@@ -222,7 +235,7 @@ export const EditorialTestimonials: React.FC<EditorialTestimonialsProps> = ({
             {/* Right Title */}
             <div 
               ref={rightHeadingRef}
-              className="testimonial-heading absolute bottom-[8%] md:top-1/2 md:-translate-y-1/2 right-1/2 translate-x-1/2 md:translate-x-0 md:right-[8vw] text-center md:text-right font-heading font-semibold text-stone-900 tracking-tight text-2xl sm:text-3xl md:text-[40px] lg:text-[48px] xl:text-[54px] w-[90%] md:w-auto max-w-[90vw] md:max-w-[30vw]"
+              className="testimonial-heading testimonial-heading-right absolute bottom-[8%] md:top-1/2 md:-translate-y-1/2 right-1/2 translate-x-1/2 md:translate-x-0 md:right-[16vw] text-center md:text-right font-heading font-semibold text-stone-900 tracking-tight text-base sm:text-lg md:text-xl lg:text-2xl xl:text-[28px] w-[90%] md:w-auto max-w-[90vw] md:max-w-[30vw]"
               style={{
                 lineHeight: '1.05',
                 willChange: 'transform, opacity',
